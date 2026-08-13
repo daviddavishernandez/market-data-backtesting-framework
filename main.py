@@ -1,34 +1,61 @@
 from utils.data_loader import DataLoader
 from utils.validator import DataValidator
 from strategies.moving_average import MovingAverageStrategy
+from backtester.backtester import Backtester
 
 
-# Load the market data
+# ---------------------------------------------------
+# LOAD DATA
+# ---------------------------------------------------
+
 loader = DataLoader("data/apple.csv")
 market_data = loader.load_data()
 
 
-# Validate the market data
+# ---------------------------------------------------
+# VALIDATE DATA
+# ---------------------------------------------------
+
 validator = DataValidator(market_data)
 validator.validate()
 
 
-# Create the strategy
+# ---------------------------------------------------
+# CREATE STRATEGY
+# ---------------------------------------------------
+
 strategy = MovingAverageStrategy(
     market_data,
     short_window=3,
     long_window=5
 )
 
-
-# Generate signals
 strategy_data = strategy.generate_signals()
 
 
-print("Market data loaded and validated successfully.")
+# ---------------------------------------------------
+# RUN BACKTEST
+# ---------------------------------------------------
+
+backtester = Backtester(
+    strategy_data,
+    initial_cash=10000
+)
+
+results = backtester.run()
+
+
+# ---------------------------------------------------
+# DISPLAY RESULTS
+# ---------------------------------------------------
 
 print(
-    strategy_data[
-        ["Date", "Close", "Short_MA", "Long_MA", "Signal"]
+    results[
+        [
+            "Date",
+            "Close",
+            "Signal",
+            "Portfolio_Value"
+        ]
     ]
 )
