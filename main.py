@@ -25,23 +25,15 @@ validator.validate()
 # CREATE STRATEGY
 # ---------------------------------------------------
 
-strategy = MovingAverageStrategy(
-    market_data,
-    short_window=3,
-    long_window=5
-)
+strategy = MovingAverageStrategy(market_data,short_window=3,long_window=5)
 
 strategy_data = strategy.generate_signals()
-
 
 # ---------------------------------------------------
 # RUN BACKTEST
 # ---------------------------------------------------
 
-backtester = Backtester(
-    strategy_data,
-    initial_cash=10000
-)
+backtester = Backtester(strategy_data,initial_cash=10000)
 
 results = backtester.run()
 
@@ -49,25 +41,13 @@ results = backtester.run()
 # DISPLAY RESULTS
 # ---------------------------------------------------
 
-print(
-    results[
-        [
-            "Date",
-            "Close",
-            "Signal",
-            "Portfolio_Value"
-        ]
-    ]
-)
+print(results[["Date","Close","Signal","Execution_Signal","Portfolio_Value"]])
 
 # ---------------------------------------------------
 # ANALYZE PERFORMANCE
 # ---------------------------------------------------
 
-performance = PerformanceAnalyzer(
-    results,
-    initial_cash=10000
-)
+performance = PerformanceAnalyzer(results,initial_cash=10000)
 
 final_value = performance.get_final_value()
 total_profit = performance.get_total_profit()

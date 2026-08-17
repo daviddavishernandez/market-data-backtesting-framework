@@ -11,27 +11,47 @@ class Backtester:
         self.portfolio = Portfolio(initial_cash) # creates the portfolio that will execute the trades
 
     def run(self): #run the backtest one row at a time 
+        #shifting the signals:
+        #move every signal forward by one row
+        #ex: original signal
+        # Day 1 -> 0
+        # Day 2 -> 1
+        # Day 3 -> 1
+
+        #execution signal:
+        # Day 1 -> 0
+        # Day 2 -> 0
+        # Day 3 -> 1
+
+        # Therefore, Day 2's signal is executed on Day 3.
+        self.data["Execution_Signal"] = (self.data["Signal"].shift(1).fillna(0))
+        #fillna(0) means that after shifting, the first row will be N/A or Nan because there was no previous trading day
+        #shift(1) basically just shifts the signals so theyre excecuted the next day 
+
         portfolio_values = [] # this list will store the value of the portfolio for every day in the dataset
 
         #go through the market data one day at a time:
         for index,row in self.data.iterrows():
 
-            #get the closing price for the current day
-            price = row["Close"]
+            #represents the price when the next trading day begins
+            execution_price = row["Open"] 
 
-            #get the trading signal for the current day
-            signal = row["Signal"]
+            #signal created on the previous trading day
+            execution_signal = row["Execution_Signal"]
 
-            #if signal = 1 and we don't already own shares, buy as many shares as possible
-            if signal == 1 and self.portfolio.shares == 0:
-                self.portfolio.buy(price)
+            # current closing price to calculate worth of portfolio at the end of the day
+            closing_price = row["Close"]
 
-            #if signal = 0 and we own shares, sell all of them
-            elif signal == 0 and self.portfolio.shares > 0:
-                self.portfolio.sell(price)
+            #buy:
+            if (execution_signal == 1 and self.portfolio.shares == 0):
+                self.portfolio.buy(execution_price)
+
+            #sell:
+            elif (execution_signal == 0 and self.portfolio.shares > 0):
+                self.portfolio.sell(execution_price)
 
             #calculate how much the portfolio is worth today
-            total_value = self.portfolio.get_total_value(price)
+            total_value = self.portfolio.get_total_value(closing_price)
 
             #store that value in the list that we created in the beginning 
             portfolio_values.append(total_value)
